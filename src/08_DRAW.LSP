@@ -76,6 +76,49 @@
   )
 
 )
+;----------------------------------------------------------
+; Draw All Sections
+;----------------------------------------------------------
+
+(defun XSEC:DrawAllSections (/ chainages ch index)
+
+  (setq chainages
+        (XSEC:GetChainages *WorkingCSV*))
+
+  (setq index 0)
+
+  (foreach ch chainages
+
+    (XSEC:DrawSection
+      index
+      ch)
+
+    (setq index (1+ index))
+
+  )
+
+)
+;----------------------------------------------------------
+; Main Command
+;----------------------------------------------------------
+
+(defun c:XDRAW ()
+
+  (if (XSEC:LoadCSV)
+
+    (progn
+
+      (XSEC:DrawAllSections)
+
+      (prompt "\nDone.")
+
+    )
+
+  )
+
+  (princ)
+
+)
 
 (princ "\n08_DRAW Loaded...")
 (princ)
