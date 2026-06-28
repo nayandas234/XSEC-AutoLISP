@@ -124,63 +124,72 @@ pts
 
 )
 ;----------------------------------------------------------
-; Draw One Working Section
+; Draw All Working Sections
 ;----------------------------------------------------------
 
-(defun XSEC:DrawWorkingSection
+(defun XSEC:DrawAllSections
 (
-base
-chainage
 /
-sec
-pts
+chs
+ch
+base
+rl
+spacing
 )
 
-  (setq sec
-        (XSEC:GetWorkingSection
-          chainage
-          *WorkingCSV*))
+  (setq spacing 12.0)
 
-  (if sec
+  (setq chs
+        (XSEC:GetChainages *WorkingCSV*))
 
-    (progn
+  (foreach ch chs
 
-      (setq pts
-            (XSEC:WorkingPoints
-              base
-              sec))
+    ;; Proposed RL
+    (setq rl
+          (XSEC:GetProposedRL
+            ch
+            *ProposedCSV*))
 
-      (XSEC:DrawWorkingPolyline pts)
+    ;; Base Point
+    (setq base
 
-      (XSEC:DrawWorkingMarkers pts)
+      (list
 
-    )
+        (* spacing
+           (- ch (car chs)))
 
-    (prompt
-      "\nWorking section not found.")
+        rl
 
-  )
-
-)
-(defun c:WCSVTEST (/ ch)
-
-  (if (XSEC:LoadCSV)
-
-    (progn
-
-      (setq ch
-            (getreal
-              "\nEnter Chainage : "))
-
-      (XSEC:DrawWorkingSection
-
-        '(0.0 0.0 0.0)
-
-        ch
+        0.0
 
       )
 
     )
+
+    ;; Draw Grid
+    (XSEC:DrawVerticalGrid base)
+    (XSEC:DrawHorizontalGrid base)
+
+    ;; Draw Labels
+    (XSEC:DrawRLLabels base)
+    (XSEC:DrawOffsetLabels base)
+
+    ;; Proposed
+    (XSEC:DrawProposed base)
+
+    ;; Working
+    (XSEC:DrawWorkingSection
+      base
+      ch)
+
+  )
+
+)
+(defun c:XDRAW ()
+
+  (if (XSEC:LoadCSV)
+
+    (XSEC:DrawAllSections)
 
   )
 
