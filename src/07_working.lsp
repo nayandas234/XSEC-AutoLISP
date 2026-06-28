@@ -90,7 +90,7 @@ pts
           (cons 8 *XSEC-LAYER-WORKING*)
           '(100 . "AcDbPolyline")
           (cons 90 (length pts))
-          '(70 . 0)
+          '(70 . 1)
         )
 
         (mapcar
