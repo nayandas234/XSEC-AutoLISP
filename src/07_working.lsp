@@ -11,20 +11,21 @@
 
 (defun XSEC:OffsetRLToPoint
 (
-base
-offset
-rl
+ base
+ offset
+ rl
 )
 
-(list
+  (list
 
- (+ (car base) offset)
+    (+ (car base) offset)
 
- (+ (cadr base)
+    (+ (cadr base)
+       (- rl *XSEC-GRID-START-RL*))
 
-    (- rl *XSEC-GRID-START-RL*))
+    0.0
 
- 0.0
+  )
 
 )
 ;----------------------------------------------------------
@@ -124,77 +125,57 @@ pts
 
 )
 ;----------------------------------------------------------
-; Draw All Working Sections
+; Draw Working Markers
 ;----------------------------------------------------------
 
-(defun XSEC:DrawAllSections
-(
-/
-chs
-ch
-base
-rl
-spacing
+(defun XSEC:DrawWorkingMarkers (pts / p)
+
+  (foreach p pts
+
+    (entmakex
+      (list
+        '(0 . "CIRCLE")
+        (cons 8 *XSEC-LAYER-WORKING*)
+        (cons 10 p)
+        (cons 40 0.05)
+      )
+    )
+
+  )
+
 )
 
-  (setq spacing 12.0)
+;----------------------------------------------------------
+; Draw Working Section
+;----------------------------------------------------------
 
-  (setq chs
-        (XSEC:GetChainages *WorkingCSV*))
+(defun XSEC:DrawWorkingSection (base chainage / sec pts)
 
-  (foreach ch chs
+  (setq sec
+        (XSEC:GetWorkingSection
+          chainage
+          *WorkingCSV*))
 
-    ;; Proposed RL
-    (setq rl
-          (XSEC:GetProposedRL
-            ch
-            *ProposedCSV*))
-    (XSEC:CalcGridStartRL rl)
+  (if sec
 
-    ;; Base Point
-    (setq base
+    (progn
 
-      (list
+      (setq pts
+            (XSEC:WorkingPoints
+              base
+              sec))
 
-        (* spacing
-           (- ch (car chs)))
-
-        rl
-
-        0.0
-
-      )
+      (XSEC:DrawWorkingPolyline pts)
+      (XSEC:DrawWorkingMarkers pts)
 
     )
 
-    ;; Draw Grid
-    (XSEC:DrawVerticalGrid base)
-    (XSEC:DrawHorizontalGrid base)
-
-    ;; Draw Labels
-    (XSEC:DrawRLLabels base)
-    (XSEC:DrawOffsetLabels base)
-
-    ;; Proposed
-    (XSEC:DrawProposed base)
-
-    ;; Working
-    (XSEC:DrawWorkingSection
-      base
-      ch)
+    (prompt
+      (strcat
+        "\nWorking section not found : "
+        (rtos chainage 2 3)))
 
   )
-
-)
-(defun c:XDRAW ()
-
-  (if (XSEC:LoadCSV)
-
-    (XSEC:DrawAllSections)
-
-  )
-
-  (princ)
 
 )
 
