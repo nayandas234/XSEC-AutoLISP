@@ -22,7 +22,7 @@
 ; Bottom Line
 ;----------------------------------------------------------
 
-(defun XSEC:DrawBottom (base / p1 p2)
+(defun XSEC:DrawBottom (base / p1 p2 e)
 
   (setq p1
     (list
@@ -40,28 +40,25 @@
     )
   )
 
+(setq e
   (entmakex
-
     (list
-
       '(0 . "LINE")
-
       (cons 8 *XSEC-LAYER-PROPOSED*)
-
       (cons 10 p1)
-
       (cons 11 p2)
-
     )
-
   )
+)
+
+e
 
 )
 ;----------------------------------------------------------
 ; Left Wall
 ;----------------------------------------------------------
 
-(defun XSEC:DrawLeftWall (base / p1 p2)
+(defun XSEC:DrawLeftWall (base / p1 p2 e)
 
   (setq p1
   (list
@@ -80,29 +77,26 @@
     )
   )
 
+(setq e
   (entmakex
-
     (list
-
       '(0 . "LINE")
-
       (cons 8 *XSEC-LAYER-PROPOSED*)
-
       (cons 10 p1)
-
       (cons 11 p2)
-
     )
-
   )
+)
 
+e
+  
 )
 
 ;----------------------------------------------------------
 ; Right Wall
 ;----------------------------------------------------------
 
-(defun XSEC:DrawRightWall (base / p1 p2)
+(defun XSEC:DrawRightWall (base / p1 p2 e)
 
   (setq p1
   (list
@@ -121,23 +115,21 @@
     )
   )
 
+(setq e
   (entmakex
-
     (list
-
       '(0 . "LINE")
-
       (cons 8 *XSEC-LAYER-PROPOSED*)
-
       (cons 10 p1)
-
       (cons 11 p2)
-
     )
-
   )
+)
+
+e
 
 )
+
 ;----------------------------------------------------------
 ; Ellipse Crown
 ;----------------------------------------------------------
@@ -205,22 +197,60 @@
 
 (vla-put-EndParameter ell pi)
 
-ell
+(vlax-vla-object->ename ell)
+
+)
+;----------------------------------------------------------
+; Draw Center Line
+;----------------------------------------------------------
+
+(defun XSEC:DrawCenterLine (base / p1 p2 e)
+
+  (setq p1
+    (list
+      (car base)
+      (- (cadr base) 1.0)
+      0.0
+    )
+  )
+
+  (setq p2
+    (list
+      (car base)
+      (+ (cadr base) *XSEC-PROP-TOTAL-HEIGHT* 1.0)
+      0.0
+    )
+  )
+
+(setq e
+  (entmakex
+    (list
+      '(0 . "LINE")
+      (cons 8 *XSEC-LAYER-CENTER*)
+      (cons 10 p1)
+      (cons 11 p2)
+    )
+  )
+)
+
+e
 
 )
 ;----------------------------------------------------------
 ; Draw Proposed
 ;----------------------------------------------------------
 
-(defun XSEC:DrawProposed (base)
+(defun XSEC:DrawProposed (base / ent)
 
-  (XSEC:DrawBottom base)
+  (setq ent '())
 
-  (XSEC:DrawLeftWall base)
+  (setq ent (cons (XSEC:DrawBottom base) ent))
+  (setq ent (cons (XSEC:DrawLeftWall base) ent))
+  (setq ent (cons (XSEC:DrawRightWall base) ent))
+  (setq ent (cons (XSEC:DrawCrown base) ent))
+  (setq ent (cons (XSEC:DrawCenterLine base) ent))
 
-  (XSEC:DrawRightWall base)
-
-  (XSEC:DrawCrown base)
+  (reverse ent)
 
 )
 
