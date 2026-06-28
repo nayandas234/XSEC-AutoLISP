@@ -115,12 +115,58 @@
   (reverse lst)
 
 )
+;----------------------------------------------------------
+; Vertical Grid Labels (Offset)
+;----------------------------------------------------------
+
+(defun XSEC:DrawOffsetLabels (base / lim xmin ymin ymax x txt h)
+
+  (setq lim (XSEC:GetGridLimits base))
+
+  (setq xmin (nth 0 lim))
+  (setq ymin (nth 1 lim))
+  (setq ymax (nth 3 lim))
+
+  (setq h *XSEC-GRID-TEXT*)
+
+  (setq x xmin)
+
+  (while (<= x (nth 2 lim))
+
+    (setq txt
+      (rtos
+        (- x (car base))
+        2
+        1
+      )
+    )
+
+    (entmakex
+      (list
+        '(0 . "TEXT")
+        (cons 8 *XSEC-LAYER-TEXT*)
+        (cons 10 (list x (- ymin 0.30) 0.0))
+        (cons 40 h)
+        (cons 1 txt)
+        (cons 7 "Standard")
+        (cons 72 1)
+        (cons 73 2)
+        (cons 11 (list x (- ymin 0.30) 0.0))
+      )
+    )
+
+    (setq x (+ x *XSEC-GRID-OFFSET*))
+
+  )
+
+)
 (defun c:GTEST (/ p)
 
   (setq p (getpoint "\nPick Base : "))
 
   (XSEC:DrawVerticalGrid p)
   (XSEC:DrawHorizontalGrid p)
+  (XSEC:DrawOffsetLabels p)
 
   (princ)
 
