@@ -6,35 +6,57 @@
 (vl-load-com)
 
 ;----------------------------------------------------------
-; Calculate Base Point
+; Grid Base
 ;----------------------------------------------------------
 
-(defun XSEC:GetBasePoint (index propRL / x y)
+(defun XSEC:GetGridBase (index / x)
 
-  ;; Horizontal spacing
   (setq x
         (* index
            (+ *XSEC-PROP-WIDTH*
               (* *XSEC-GRID-MARGIN* 4.0))))
 
-  ;; Grid datum
-  (XSEC:CalcGridStartRL propRL)
-
-  ;; Proposed bottom
-  (setq y
-        (- propRL
-           *XSEC-GRID-START-RL*))
-
-  (list x y 0.0)
+  (list x 0.0 0.0)
 
 )
+
 ;----------------------------------------------------------
-; Draw One Section
+; Tunnel Base
 ;----------------------------------------------------------
 
-(defun XSEC:DrawSection (index ch / rl base)
+(defun XSEC:GetTunnelBase
+(
+index
+propRL
+/
+gridBase
+)
 
-  ;; Proposed RL
+  (setq gridBase
+        (XSEC:GetGridBase index))
+
+  (list
+
+    (car gridBase)
+
+    (- propRL
+       *XSEC-GRID-START-RL*)
+
+    0.0
+
+  )
+
+)
+(defun XSEC:DrawSection
+(
+index
+ch
+/
+rl
+gridBase
+tunnelBase
+)
+
   (setq rl
         (XSEC:GetProposedRL
           ch
@@ -44,34 +66,54 @@
 
     (progn
 
-      ;; Base Point
-      (setq base
-            (XSEC:GetBasePoint
+      (XSEC:CalcGridStartRL rl)
+      (prompt
+  (strcat
+    "\nCH = " (rtos ch 2 3)
+    "  PROP RL = " (rtos rl 2 3)))
+
+(prompt
+  (strcat
+    "\nGRID START = "
+    (rtos *XSEC-GRID-START-RL* 2 3)))
+
+(prompt
+  (strcat
+    "\nGRID BASE = "
+    (vl-princ-to-string gridBase)))
+
+(prompt
+  (strcat
+    "\nTUNNEL BASE = "
+    (vl-princ-to-string tunnelBase)))
+
+      (setq gridBase
+            (XSEC:GetGridBase index))
+
+      (setq tunnelBase
+            (XSEC:GetTunnelBase
               index
               rl))
 
-      ;; Grid
-      (XSEC:DrawVerticalGrid base)
-      (XSEC:DrawHorizontalGrid base)
+      ;; GRID
 
-      ;; Labels
-      (XSEC:DrawRLLabels base)
-      (XSEC:DrawOffsetLabels base)
+      (XSEC:DrawVerticalGrid gridBase)
+      (XSEC:DrawHorizontalGrid gridBase)
 
-      ;; Proposed
-      (XSEC:DrawProposed base)
+      (XSEC:DrawRLLabels gridBase)
+      (XSEC:DrawOffsetLabels gridBase)
 
-      ;; Working
+      ;; TUNNEL
+
+      (XSEC:DrawProposed tunnelBase)
+
+      ;; WORKING
+
       (XSEC:DrawWorkingSection
-        base
+        tunnelBase
         ch)
 
     )
-
-    (prompt
-      (strcat
-        "\nProposed RL not found for Chainage "
-        (rtos ch 2 3)))
 
   )
 
@@ -80,20 +122,17 @@
 ; Draw All Sections
 ;----------------------------------------------------------
 
-(defun XSEC:DrawAllSections (/ chainages ch index)
+(defun XSEC:DrawAllSections (/ chs ch idx)
 
-  (setq chainages
-        (XSEC:GetChainages *WorkingCSV*))
+  (setq chs (XSEC:GetChainages *WorkingCSV*))
 
-  (setq index 0)
+  (setq idx 0)
 
-  (foreach ch chainages
+  (foreach ch chs
 
-    (XSEC:DrawSection
-      index
-      ch)
+    (XSEC:DrawSection idx ch)
 
-    (setq index (1+ index))
+    (setq idx (1+ idx))
 
   )
 
