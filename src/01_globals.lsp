@@ -7,6 +7,7 @@
 (vl-load-com)
 
 (setq *XSEC-VERSION* "1.0")
+(setq *XSEC-GRID-START-RL* 0.0)
 
 ;;--------------------------------------------------------
 ;; Proposed Tunnel Geometry (Fixed)
