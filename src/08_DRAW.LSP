@@ -33,7 +33,6 @@
 
 )
 
-)
 (defun XSEC:DrawSection
 (
 index
