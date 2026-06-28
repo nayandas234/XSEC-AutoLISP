@@ -57,65 +57,29 @@ gridBase
 tunnelBase
 )
 
-  (setq rl
-        (XSEC:GetProposedRL
-          ch
-          *ProposedCSV*))
+  (setq rl (XSEC:GetProposedRL ch *ProposedCSV*))
 
-  (if rl
+(if rl
+  (progn
 
-    (progn
+    (XSEC:CalcGridStartRL rl)
 
-      (XSEC:CalcGridStartRL rl)
-      (prompt
-  (strcat
-    "\nCH = " (rtos ch 2 3)
-    "  PROP RL = " (rtos rl 2 3)))
+    (setq gridBase
+          (XSEC:GetGridBase index))
 
-(prompt
-  (strcat
-    "\nGRID START = "
-    (rtos *XSEC-GRID-START-RL* 2 3)))
+    (setq tunnelBase
+          (XSEC:GetTunnelBase index rl))
 
-(prompt
-  (strcat
-    "\nGRID BASE = "
-    (vl-princ-to-string gridBase)))
+    (XSEC:DrawVerticalGrid gridBase)
+    (XSEC:DrawHorizontalGrid gridBase)
 
-(prompt
-  (strcat
-    "\nTUNNEL BASE = "
-    (vl-princ-to-string tunnelBase)))
+    (XSEC:DrawRLLabels gridBase)
+    (XSEC:DrawOffsetLabels gridBase)
 
-      (setq gridBase
-            (XSEC:GetGridBase index))
-
-      (setq tunnelBase
-            (XSEC:GetTunnelBase
-              index
-              rl))
-
-      ;; GRID
-
-      (XSEC:DrawVerticalGrid gridBase)
-      (XSEC:DrawHorizontalGrid gridBase)
-
-      (XSEC:DrawRLLabels gridBase)
-      (XSEC:DrawOffsetLabels gridBase)
-
-      ;; TUNNEL
-
-      (XSEC:DrawProposed tunnelBase)
-
-      ;; WORKING
-
-      (XSEC:DrawWorkingSection
-        tunnelBase
-        ch)
-
-    )
-
+    (XSEC:DrawProposed tunnelBase)
+    (XSEC:DrawWorkingSection tunnelBase ch)
   )
+)
 
 )
 ;----------------------------------------------------------
