@@ -72,12 +72,19 @@
 
 )
 
-(defun c:XTEST ()
+(defun c:XELLTEST (/ doc ms e cen maj)
 
-  (XSEC:DrawBottom '(0.0 0.0 0.0))
+  (setq doc (vla-get-ActiveDocument (vlax-get-acad-object)))
+  (setq ms  (vla-get-ModelSpace doc))
 
-  (XSEC:DrawTestEllipse '(0.0 0.0 0.0))
+  (setq cen (vlax-3d-point '(0.0 4.0 0.0)))
+  (setq maj (vlax-3d-point '(2.5 0.0 0.0)))
+
+  (setq e (vla-AddEllipse ms cen maj 0.6))
+
+  ;; Try converting to upper arc
+  (vla-put-StartParameter e 0.0)
+  (vla-put-EndParameter e pi)
 
   (princ)
-
 )
