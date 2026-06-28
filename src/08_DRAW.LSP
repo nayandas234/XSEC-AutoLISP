@@ -24,27 +24,14 @@
 ; Tunnel Base
 ;----------------------------------------------------------
 
-(defun XSEC:GetTunnelBase
-(
-index
-propRL
-/
-gridBase
-)
+(defun XSEC:GetTunnelBase (index / gridBase)
 
   (setq gridBase
         (XSEC:GetGridBase index))
 
-  (list
+  gridBase
 
-    (car gridBase)
-
-    (- propRL
-       *XSEC-GRID-START-RL*)
-
-    0.0
-
-  )
+)
 
 )
 (defun XSEC:DrawSection
