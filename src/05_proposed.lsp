@@ -41,10 +41,42 @@
   )
 
 )
+(defun XSEC:DrawTestEllipse (base / doc ms cen maj ratio)
+
+  (setq doc (vla-get-ActiveDocument (vlax-get-acad-object)))
+  (setq ms  (vla-get-ModelSpace doc))
+
+  ;; Center of ellipse
+  ;; Top of wall = Y + 4
+  ;; Crown rise = 1.5
+  ;; Ellipse center = Y + 4
+
+  (setq cen (vlax-3d-point
+              (list
+                (car base)
+                (+ (cadr base) 4.0)
+                0.0)))
+
+  ;; Major Axis = 2.5
+  (setq maj (vlax-3d-point '(2.5 0.0 0.0)))
+
+  ;; Minor / Major = 1.5 / 2.5 = 0.6
+  (setq ratio 0.6)
+
+  (vla-AddEllipse
+      ms
+      cen
+      maj
+      ratio
+  )
+
+)
 
 (defun c:XTEST ()
 
   (XSEC:DrawBottom '(0.0 0.0 0.0))
+
+  (XSEC:DrawTestEllipse '(0.0 0.0 0.0))
 
   (princ)
 
