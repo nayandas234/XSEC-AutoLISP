@@ -72,7 +72,7 @@ pts
   pts
 
 )
-(defun c:WPTEST (/ sec base)
+(defun c:WPTEST (/ sec base pts)
 
   (setq base '(0.0 0.0 0.0))
 
@@ -89,13 +89,45 @@ pts
     )
 
   )
+  ;----------------------------------------------------------
+; Draw Working Polyline
+;----------------------------------------------------------
 
-  (print
+(defun XSEC:DrawWorkingPolyline (pts / e)
 
-    (XSEC:WorkingPoints base sec)
+  (setq e
+    (entmakex
+      (append
+        (list
+          '(0 . "LWPOLYLINE")
+          (cons 8 *XSEC-LAYER-WORKING*)
+          (cons 90 (length pts))
+          '(70 . 0)
+        )
 
+        (apply
+          'append
+          (mapcar
+            '(lambda (p)
+               (list
+                 (cons 10 (list (car p) (cadr p)))
+               )
+             )
+            pts
+          )
+        )
+      )
+    )
   )
 
+  e
+
+)
+
+  (setq pts
+      (XSEC:WorkingPoints base sec))
+
+(XSEC:DrawWorkingPolyline pts)
   (princ)
 
 )
