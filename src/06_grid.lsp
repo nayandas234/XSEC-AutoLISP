@@ -40,6 +40,19 @@
 
 )
 ;----------------------------------------------------------
+; Calculate Grid Start RL
+;----------------------------------------------------------
+
+(defun XSEC:CalcGridStartRL (propRL)
+
+  ;; Example:
+  ;; 649.311 -> 648.000
+
+  (setq *XSEC-GRID-START-RL*
+        (- (fix propRL) 1.0))
+
+)
+;----------------------------------------------------------
 ; Vertical Grid
 ;----------------------------------------------------------
 
@@ -179,7 +192,9 @@
   (while (<= y ymax)
 
     ;; Actual RL = Base RL + Grid Height
-    (setq rl (+ (cadr base) (- y (cadr base))))
+    (setq rl
+      (+ *XSEC-GRID-START-RL*
+         (- y (cadr base))))
 
     (setq txt (rtos rl 2 3))
 
