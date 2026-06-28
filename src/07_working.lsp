@@ -124,49 +124,66 @@ pts
 
 )
 ;----------------------------------------------------------
-; Draw Working Markers
+; Draw One Working Section
 ;----------------------------------------------------------
 
-(defun XSEC:DrawWorkingMarkers (pts / p)
+(defun XSEC:DrawWorkingSection
+(
+base
+chainage
+/
+sec
+pts
+)
 
-  (foreach p pts
+  (setq sec
+        (XSEC:GetWorkingSection
+          chainage
+          *WorkingCSV*))
 
-    (entmakex
-      (list
-        '(0 . "CIRCLE")
-        (cons 8 *XSEC-LAYER-WORKING*)
-        (cons 10 p)
-        (cons 40 0.05)
-      )
+  (if sec
+
+    (progn
+
+      (setq pts
+            (XSEC:WorkingPoints
+              base
+              sec))
+
+      (XSEC:DrawWorkingPolyline pts)
+
+      (XSEC:DrawWorkingMarkers pts)
+
     )
+
+    (prompt
+      "\nWorking section not found.")
 
   )
 
 )
-(defun c:WPTEST (/ sec base pts)
+(defun c:WCSVTEST (/ ch)
 
-  (setq base '(0.0 0.0 0.0))
+  (if (XSEC:LoadCSV)
 
-  (setq sec
+    (progn
 
-    '(
-      (-3.0 0.8)
-      (-2.0 1.1)
-      (-1.0 1.6)
-      (0.0 1.9)
-      (1.0 1.5)
-      (2.0 1.1)
-      (3.0 0.8)
+      (setq ch
+            (getreal
+              "\nEnter Chainage : "))
+
+      (XSEC:DrawWorkingSection
+
+        '(0.0 0.0 0.0)
+
+        ch
+
+      )
+
     )
 
   )
 
-
-  (setq pts
-      (XSEC:WorkingPoints base sec))
-
-(XSEC:DrawWorkingPolyline pts)
-  (XSEC:DrawWorkingMarkers pts)
   (princ)
 
 )
