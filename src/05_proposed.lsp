@@ -1,90 +1,236 @@
+;=========================================================
+; XSEC PROJECT
+; FILE : 05_PROPOSED.LSP
+;=========================================================
+
 (vl-load-com)
 
-(defun XSEC:DrawBottom (base / p1 p2 lw rw)
+;----------------------------------------------------------
+; ModelSpace
+;----------------------------------------------------------
 
-  ;; Bottom
-  (setq p1 (list (- (car base) 2.5) (cadr base) 0.0))
-  (setq p2 (list (+ (car base) 2.5) (cadr base) 0.0))
+(defun XSEC:GetModelSpace (/ acad doc)
 
-  ;; Wall Tops
-  (setq lw (list (- (car base) 2.5) (+ (cadr base) 4.0) 0.0))
-  (setq rw (list (+ (car base) 2.5) (+ (cadr base) 4.0) 0.0))
+  (setq acad (vlax-get-acad-object))
+  (setq doc  (vla-get-ActiveDocument acad))
 
-  ;; Bottom Line
-  (entmakex
+  (vla-get-ModelSpace doc)
+
+)
+
+;----------------------------------------------------------
+; Bottom Line
+;----------------------------------------------------------
+
+(defun XSEC:DrawBottom (base / p1 p2)
+
+  (setq p1
     (list
+      (- (car base) (/ *XSEC-PROP-WIDTH* 2.0))
+      (cadr base)
+      0.0
+    )
+  )
+
+  (setq p2
+    (list
+      (+ (car base) (/ *XSEC-PROP-WIDTH* 2.0))
+      (cadr base)
+      0.0
+    )
+  )
+
+  (entmakex
+
+    (list
+
       '(0 . "LINE")
+
       (cons 8 *XSEC-LAYER-PROPOSED*)
+
       (cons 10 p1)
+
       (cons 11 p2)
-    )
-  )
 
-  ;; Left Wall
-  (entmakex
-    (list
-      '(0 . "LINE")
-      (cons 8 *XSEC-LAYER-PROPOSED*)
-      (cons 10 p1)
-      (cons 11 lw)
     )
-  )
 
-  ;; Right Wall
-  (entmakex
-    (list
-      '(0 . "LINE")
-      (cons 8 *XSEC-LAYER-PROPOSED*)
-      (cons 10 p2)
-      (cons 11 rw)
-    )
   )
 
 )
-(defun XSEC:DrawTestEllipse (base / doc ms cen maj ratio)
+;----------------------------------------------------------
+; Left Wall
+;----------------------------------------------------------
 
-  (setq doc (vla-get-ActiveDocument (vlax-get-acad-object)))
-  (setq ms  (vla-get-ModelSpace doc))
+(defun XSEC:DrawLeftWall (base / p1 p2)
 
-  ;; Center of ellipse
-  ;; Top of wall = Y + 4
-  ;; Crown rise = 1.5
-  ;; Ellipse center = Y + 4
+  (setq p1
+  (list
+    (- (car base)
+       (/ *XSEC-PROP-WIDTH* 2.0))
+    (cadr base)
+    0.0
+  )
+)
 
-  (setq cen (vlax-3d-point
-              (list
-                (car base)
-                (+ (cadr base) 4.0)
-                0.0)))
+  (setq p2
+    (list
+      (- (car base) (/ *XSEC-PROP-WIDTH* 2.0))
+      (+ (cadr base) *XSEC-PROP-WALL-HEIGHT*)
+      0.0
+    )
+  )
 
-  ;; Major Axis = 2.5
-  (setq maj (vlax-3d-point '(2.5 0.0 0.0)))
+  (entmakex
 
-  ;; Minor / Major = 1.5 / 2.5 = 0.6
-  (setq ratio 0.6)
+    (list
+
+      '(0 . "LINE")
+
+      (cons 8 *XSEC-LAYER-PROPOSED*)
+
+      (cons 10 p1)
+
+      (cons 11 p2)
+
+    )
+
+  )
+
+)
+
+;----------------------------------------------------------
+; Right Wall
+;----------------------------------------------------------
+
+(defun XSEC:DrawRightWall (base / p1 p2)
+
+  (setq p1
+  (list
+    (+ (car base)
+       (/ *XSEC-PROP-WIDTH* 2.0))
+    (cadr base)
+    0.0
+  )
+)
+
+  (setq p2
+    (list
+      (+ (car base) (/ *XSEC-PROP-WIDTH* 2.0))
+      (+ (cadr base) *XSEC-PROP-WALL-HEIGHT*)
+      0.0
+    )
+  )
+
+  (entmakex
+
+    (list
+
+      '(0 . "LINE")
+
+      (cons 8 *XSEC-LAYER-PROPOSED*)
+
+      (cons 10 p1)
+
+      (cons 11 p2)
+
+    )
+
+  )
+
+)
+;----------------------------------------------------------
+; Ellipse Crown
+;----------------------------------------------------------
+
+(defun XSEC:DrawCrown (base / ms cen maj ell)
+
+  (setq ms (XSEC:GetModelSpace))
+
+  (setq cen
+
+    (vlax-3d-point
+
+      (list
+
+        (car base)
+
+        (+ (cadr base) *XSEC-PROP-WALL-HEIGHT*)
+
+        0.0
+
+      )
+
+    )
+
+  )
+
+  (setq maj
+
+    (vlax-3d-point
+
+      (list
+
+        (/ *XSEC-PROP-WIDTH* 2.0)
+
+        0.0
+
+        0.0
+
+      )
+
+    )
+
+  )
+
+  (setq ell
 
   (vla-AddEllipse
-      ms
-      cen
-      maj
-      ratio
+
+    ms
+
+    cen
+
+    maj
+
+    (/ *XSEC-PROP-CROWN-RISE*
+       (/ *XSEC-PROP-WIDTH* 2.0))
+
   )
 
 )
 
-(defun c:XELLTEST (/ doc ms e cen maj)
+(vla-put-Layer ell *XSEC-LAYER-PROPOSED*)
 
-  (setq doc (vla-get-ActiveDocument (vlax-get-acad-object)))
-  (setq ms  (vla-get-ModelSpace doc))
+(vla-put-StartParameter ell 0.0)
 
-  (setq cen (vlax-3d-point '(0.0 4.0 0.0)))
-  (setq maj (vlax-3d-point '(2.5 0.0 0.0)))
+(vla-put-EndParameter ell pi)
 
-  (setq e (vla-AddEllipse ms cen maj 0.6))
+ell
 
-  ;; Try converting to upper arc
-  (vla-put-StartParameter e 0.0)
-  (vla-put-EndParameter e pi)
+)
+;----------------------------------------------------------
+; Draw Proposed
+;----------------------------------------------------------
+
+(defun XSEC:DrawProposed (base)
+
+  (XSEC:DrawBottom base)
+
+  (XSEC:DrawLeftWall base)
+
+  (XSEC:DrawRightWall base)
+
+  (XSEC:DrawCrown base)
+
+)
+
+(defun c:XTEST ()
+
+  (XSEC:DrawProposed '(0.0 0.0 0.0))
 
   (princ)
+
 )
+
+(princ "\n05_PROPOSED Loaded...")
+(princ)
