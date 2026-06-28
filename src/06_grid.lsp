@@ -77,11 +77,50 @@
   (reverse lst)
 
 )
+;----------------------------------------------------------
+; Horizontal Grid
+;----------------------------------------------------------
+
+(defun XSEC:DrawHorizontalGrid (base / lim xmin ymin xmax ymax y e lst)
+
+  (setq lim (XSEC:GetGridLimits base))
+
+  (setq xmin (nth 0 lim))
+  (setq ymin (nth 1 lim))
+  (setq xmax (nth 2 lim))
+  (setq ymax (nth 3 lim))
+
+  (setq y ymin)
+  (setq lst '())
+
+  (while (<= y ymax)
+
+    (setq e
+      (entmakex
+        (list
+          '(0 . "LINE")
+          (cons 8 *XSEC-LAYER-GRID*)
+          (cons 10 (list xmin y 0.0))
+          (cons 11 (list xmax y 0.0))
+        )
+      )
+    )
+
+    (setq lst (cons e lst))
+
+    (setq y (+ y *XSEC-GRID-RL*))
+
+  )
+
+  (reverse lst)
+
+)
 (defun c:GTEST (/ p)
 
   (setq p (getpoint "\nPick Base : "))
 
   (XSEC:DrawVerticalGrid p)
+  (XSEC:DrawHorizontalGrid p)
 
   (princ)
 
