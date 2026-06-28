@@ -16,15 +16,15 @@ offset
 rl
 )
 
-  (list
+(list
 
-    (+ (car base) offset)
+ (+ (car base) offset)
 
-    rl
+ (+ (cadr base)
 
-    0.0
+    (- rl *XSEC-GRID-START-RL*))
 
-  )
+ 0.0
 
 )
 ;----------------------------------------------------------
@@ -149,6 +149,7 @@ spacing
           (XSEC:GetProposedRL
             ch
             *ProposedCSV*))
+    (XSEC:CalcGridStartRL rl)
 
     ;; Base Point
     (setq base
