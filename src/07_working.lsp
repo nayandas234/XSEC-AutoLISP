@@ -123,6 +123,26 @@ pts
   e
 
 )
+;----------------------------------------------------------
+; Draw Working Markers
+;----------------------------------------------------------
+
+(defun XSEC:DrawWorkingMarkers (pts / p)
+
+  (foreach p pts
+
+    (entmakex
+      (list
+        '(0 . "CIRCLE")
+        (cons 8 *XSEC-LAYER-WORKING*)
+        (cons 10 p)
+        (cons 40 0.05)
+      )
+    )
+
+  )
+
+)
 (defun c:WPTEST (/ sec base pts)
 
   (setq base '(0.0 0.0 0.0))
@@ -146,6 +166,7 @@ pts
       (XSEC:WorkingPoints base sec))
 
 (XSEC:DrawWorkingPolyline pts)
+  (XSEC:DrawWorkingMarkers pts)
   (princ)
 
 )
