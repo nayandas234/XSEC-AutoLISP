@@ -39,15 +39,49 @@
   (list xmin ymin xmax ymax)
 
 )
-(defun c:GLIMIT (/ p)
+;----------------------------------------------------------
+; Vertical Grid
+;----------------------------------------------------------
+
+(defun XSEC:DrawVerticalGrid (base / lim xmin ymin xmax ymax x e lst)
+
+  (setq lim (XSEC:GetGridLimits base))
+
+  (setq xmin (nth 0 lim))
+  (setq ymin (nth 1 lim))
+  (setq xmax (nth 2 lim))
+  (setq ymax (nth 3 lim))
+
+  (setq x xmin)
+  (setq lst '())
+
+  (while (<= x xmax)
+
+    (setq e
+      (entmakex
+        (list
+          '(0 . "LINE")
+          (cons 8 *XSEC-LAYER-GRID*)
+          (cons 10 (list x ymin 0.0))
+          (cons 11 (list x ymax 0.0))
+        )
+      )
+    )
+
+    (setq lst (cons e lst))
+
+    (setq x (+ x *XSEC-GRID-OFFSET*))
+
+  )
+
+  (reverse lst)
+
+)
+(defun c:GTEST (/ p)
 
   (setq p (getpoint "\nPick Base : "))
 
-  (print
-
-    (XSEC:GetGridLimits p)
-
-  )
+  (XSEC:DrawVerticalGrid p)
 
   (princ)
 
