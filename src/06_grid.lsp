@@ -160,13 +160,59 @@
   )
 
 )
+;----------------------------------------------------------
+; RL Labels
+;----------------------------------------------------------
+
+(defun XSEC:DrawRLLabels (base / lim xmin ymin ymax y rl txt h)
+
+  (setq lim (XSEC:GetGridLimits base))
+
+  (setq xmin (nth 0 lim))
+  (setq ymin (nth 1 lim))
+  (setq ymax (nth 3 lim))
+
+  (setq h *XSEC-GRID-TEXT*)
+
+  (setq y ymin)
+
+  (while (<= y ymax)
+
+    ;; Actual RL = Base RL + Grid Height
+    (setq rl (+ (cadr base) (- y (cadr base))))
+
+    (setq txt (rtos rl 2 3))
+
+    (entmakex
+      (list
+        '(0 . "TEXT")
+        (cons 8 *XSEC-LAYER-TEXT*)
+        (cons 10 (list (- xmin 0.40) y 0.0))
+        (cons 40 h)
+        (cons 1 txt)
+        (cons 7 "Standard")
+        (cons 72 2)
+        (cons 73 1)
+        (cons 11 (list (- xmin 0.40) y 0.0))
+      )
+    )
+
+    (setq y (+ y *XSEC-GRID-RL*))
+
+  )
+
+)
 (defun c:GTEST (/ p)
 
   (setq p (getpoint "\nPick Base : "))
 
   (XSEC:DrawVerticalGrid p)
   (XSEC:DrawHorizontalGrid p)
+
+  (XSEC:DrawRLLabels p)
   (XSEC:DrawOffsetLabels p)
+
+  (XSEC:DrawProposed p)
 
   (princ)
 
