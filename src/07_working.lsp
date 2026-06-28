@@ -72,35 +72,52 @@ pts
   pts
 
 )
-  ;----------------------------------------------------------
+;----------------------------------------------------------
 ; Draw Working Polyline
 ;----------------------------------------------------------
 
 (defun XSEC:DrawWorkingPolyline (pts / e)
 
   (setq e
+
     (entmakex
+
       (append
+
         (list
           '(0 . "LWPOLYLINE")
+          '(100 . "AcDbEntity")
           (cons 8 *XSEC-LAYER-WORKING*)
+          '(100 . "AcDbPolyline")
           (cons 90 (length pts))
           '(70 . 0)
         )
 
-        (apply
-          'append
-          (mapcar
-            '(lambda (p)
-               (list
-                 (cons 10 (list (car p) (cadr p)))
-               )
+        (mapcar
+          '(lambda (p)
+
+             (cons 10
+
+                   (list
+
+                     (car p)
+
+                     (cadr p)
+
+                   )
+
              )
-            pts
-          )
+
+           )
+
+          pts
+
         )
+
       )
+
     )
+
   )
 
   e
